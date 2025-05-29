@@ -1,0 +1,57 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>이미지 메타데이터 관리 시스템</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .image-card { transition: transform 0.2s; }
+    .image-card:hover { transform: scale(1.03); }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h2 class="text-center mb-4">📷 이미지 메타데이터 관리</h2>
+
+    <!-- 이미지 업로드 폼 -->
+    <div class="card mb-5">
+      <div class="card-body">
+        <h5 class="card-title">이미지 업로드</h5>
+        <form action="/upload" method="post" enctype="multipart/form-data" class="row g-3">
+          <div class="col-md-6">
+            <input type="file" name="image" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <input type="text" name="tags" class="form-control" placeholder="예: person, helmet">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">업로드</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 이미지 카드 목록 -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for img in images %}
+      <div class="col">
+        <div class="card image-card h-100 shadow-sm">
+          <img src="{{ url_for('static', filename='uploads/' + img.filename) }}" class="card-img-top" style="height:200px; object-fit:cover;">
+          <div class="card-body">
+            <h5 class="card-title">{{ img.filename }}</h5>
+            <p class="card-text text-muted">
+              {{ img.resolution.width }}x{{ img.resolution.height }}<br>
+              {{ img.file_size_kb }} KB<br>
+              <small>업로드: {{ img.upload_time.strftime('%Y-%m-%d') }}</small>
+            </p>
+            <a href="/view/{{ img.filename }}" class="btn btn-outline-primary btn-sm">상세 보기</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Bar Chart from MongoDB</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>MongoDB 기반 Bar Chart</h2>
+  <canvas id="myChart" width="400" height="200"></canvas>
+  <br>
+  <a href="/insert">➕ 데이터 추가</a>
+
+  <script>
+    fetch("/chart-data")
+      .then(response => response.json())
+      .then(data => {
+        const ctx = document.getElementById("myChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: "Color Value",
+              data: data.values,
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      });
+  </script>
+</body>
+</html>

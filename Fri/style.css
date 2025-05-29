@@ -1,0 +1,10 @@
+body {
+  background-color: #f4f6f9;
+  font-family: 'Segoe UI', sans-serif;
+}
+.card {
+  border-radius: 1rem;
+}
+input.form-control {
+  border-radius: 0.5rem;
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>센서 실시간 시각화</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body style="background-color: #f8f9fa;">
+    <div class="container py-5">
+        <!-- 페이지 제목 -->
+        <h2 class="mb-4 text-center">센서 실시간 시각화</h2>
+
+        <!-- 센서 선택 영역 -->
+        <div class="mb-4">
+            <label for="sensorSelect" class="form-label">센서 유형 선택</label>
+            <!-- 센서 드롭다운 메뉴 (선택 변경 시 manualChangeSensor() 호출됨) -->
+            <select id="sensorSelect" class="form-select" onchange="manualChangeSensor()">
+                <!-- 사용자 선택 가능 센서 항목 -->
+                <option value="temperature">온도</option>
+                <option value="humidity">습도</option>
+                <option value="gas">가스</option>
+                <option value="gps">GPS</option>
+                <option value="vibration">진동</option>
+                <option value="noise">소음</option>
+                <option value="dust">먼지</option>
+                <option value="oxygen">산소</option>
+                <option value="position">위치</option>
+                <option value="motion">동작</option>
+            </select>
+        </div>
+
+        <!-- 차트를 그릴 캔버스 -->
+        <canvas id="sensorChart" height="100"></canvas>
+    </div>
+
+    <script>
+        let chart;  // Chart.js 차트 객체를 담을 전역 변수
+        let currentSensorType = "temperature";  // 초기 센서 타입
+        let intervalId;  // 주기적 갱신을 위한 setInterval ID
+
+        /**
+         * 센서 데이터에서 그래프에 표시할 값 추출
+         * 센서 종류에 따라 적절한 필드를 선택
+         */
+        function extractValue(sensorType, item) {
+            switch (sensorType) {
+                case "temperature": return item.value;
+                case "humidity": return item.humidity;
+                case "gas": return item.ppm;
+                case "noise": return item.db_level;
+                case "dust": return item.pm2_5;
+                case "oxygen": return item.o2_level;
+                case "vibration": return item.accel_x;
+                case "motion": return item.tilt_x;
+                // GPS, 위치 등은 수치형이 아니거나 시각화 방식이 달라 생략
+                default: return 0;  // 기본값 0 반환
+            }
+        }
+
+        /**
+         * 차트를 새롭게 생성하는 함수 (센서 선택 시 호출됨)
+         */
+        async function initChart(sensorType) {
+            // 백엔드에서 해당 센서의 최신 100개 데이터를 요청
+            const res = await fetch(`/data/${sensorType}`);
+            const data = await res.json();
+
+            // x축 라벨: timestamp를 사람이 읽기 쉬운 시간 문자열로 변환
+            const labels = data.map(item => new Date(item.timestamp["$date"]).toLocaleTimeString()).reverse();
+
+            // y축 값: 센서 타입에 따라 해당 필드에서 값 추출
+            const values = data.map(item => extractValue(sensorType, item)).reverse();
+
+            const ctx = document.getElementById("sensorChart").getContext("2d");
+
+            // 기존 차트가 존재하면 제거 (센서 변경 시 차트를 새로 그리기 위해)
+            if (chart) chart.destroy();
+
+            // 새 차트 생성
+            chart = new Chart(ctx, {
+                type: 'line',  // 라인 차트
+                data: {
+                    labels: labels,  // x축 라벨
+                    datasets: [{
+                        label: sensorType,  // 범례(센서 타입)
+                        data: values,  // y축 값
+                        borderWidth: 2,  // 선 굵기
+                        borderColor: '#007bff',  // 선 색상 (파란색)
+                        backgroundColor: 'rgba(0,123,255,0.1)',  // 배경 색상 (채움 영역)
+                        fill: true,  // 아래 영역 채움 여부
+                        tension: 0.3  // 선의 곡률 (부드럽게)
+                    }]
+                },
+                options: {
+                    responsive: true,  // 반응형 크기
+                    animation: {
+                        duration: 500  // 0.5초 애니메이션
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: true,  // x축 레이블이 너무 많으면 자동 생략
+                                maxTicksLimit: 10  // 최대 레이블 개수
+                            }
+                        },
+                        y: {
+                            beginAtZero: false  // y축을 0부터 시작하지 않음 (데이터 특성에 따라 조정)
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * 실시간으로 새로운 데이터 1개를 받아와서 차트 갱신
+         * 1초마다 호출됨
+         */
+        async function updateChart(sensorType) {
+            const res = await fetch(`/data/${sensorType}`);
+            const data = await res.json();
+            const latest = data[0];  // 가장 최신 데이터 1개
+
+            if (!latest) return;  // 데이터가 없으면 종료
+
+            const newLabel = new Date(latest.timestamp["$date"]).toLocaleTimeString();  // 새 시간 라벨
+            const newValue = extractValue(sensorType, latest);  // 새 센서 값
+
+            if (chart) {
+                // 기존 데이터 중 가장 오래된 것 제거 후 최신 데이터 추가
+                chart.data.labels.push(newLabel);
+                chart.data.labels.shift();
+
+                chart.data.datasets[0].data.push(newValue);
+                chart.data.datasets[0].data.shift();
+
+                chart.update();  // 차트 업데이트 실행
+            }
+        }
+
+        /**
+         * 드롭다운에서 센서 타입을 수동으로 변경 시 호출되는 함수
+         */
+        function manualChangeSensor() {
+            currentSensorType = document.getElementById("sensorSelect").value;
+            initChart(currentSensorType);  // 해당 센서의 데이터로 새 차트 초기화
+        }
+
+        /**
+         * 주기적 데이터 갱신 시작 (1초 주기)
+         */
+        function startAutoUpdate() {
+            intervalId = setInterval(() => {
+                updateChart(currentSensorType);  // 현재 센서에 대한 데이터 갱신
+            }, 10000);  // 1000ms = 1초
+        }
+
+        /**
+         * 페이지 로딩이 완료되면 실행
+         * 초기 차트 설정 + 실시간 갱신 시작
+         */
+        window.onload = async () => {
+            await initChart(currentSensorType);  // 온도 센서로 초기 차트 표시
+            startAutoUpdate();  // 실시간 업데이트 시작
+        };
+    </script>
+</body>
+</html>

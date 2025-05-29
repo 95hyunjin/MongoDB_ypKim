@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PCD 업로드 및 3D 시각화</title>
+  <style>
+    body { font-family: Arial; padding: 30px; }
+    input, button { margin-top: 10px; }
+    #result { margin-top: 30px; }
+    canvas { width: 100%; height: 500px; display: block; }
+  </style>
+</head>
+<body>
+  <h2>PCD 업로드</h2>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    Device ID: <input type="text" name="device_id" required><br>
+    Device Name: <input type="text" name="device_name" required><br>
+    Operator Name: <input type="text" name="operator_name" required><br>
+    Project ID: <input type="text" name="project_id" required><br>
+    PCD 파일: <input type="file" name="pcdfile" accept=".pcd" required><br>
+    <button type="submit">업로드</button>
+  </form>
+
+  <hr>
+  <h2>데이터 조회 및 3D 렌더링</h2>
+  <input type="text" id="deviceId" placeholder="장비 ID 입력">
+  <button onclick="loadData()">조회</button>
+  <div id="result"></div>
+  <div id="viewer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    async function loadData() {
+      const deviceId = document.getElementById("deviceId").value;
+      const res = await fetch(`/data/${deviceId}`);
+      const data = await res.json();
+
+      const meta = data.metadata;
+      const points = data.pointcloud.points;
+
+      document.getElementById("result").innerHTML = `
+        <h3>장비 정보</h3>
+        장비명: ${meta.device_name}<br>
+        담당자: ${meta.operator_name}<br>
+        프로젝트: ${meta.project_id}<br>
+        <h3>포인트 수: ${points.length}</h3>
+      `;
+
+      // THREE.js 3D 시각화
+      const container = document.getElementById('viewer');
+      container.innerHTML = '';
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, container.clientWidth / 500, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(container.clientWidth, 500);
+      container.appendChild(renderer.domElement);
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(points.length * 3);
+      for (let i = 0; i < points.length; i++) {
+        positions[i * 3] = points[i].x;
+        positions[i * 3 + 1] = points[i].y;
+        positions[i * 3 + 2] = points[i].z;
+      }
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({ color: 0x00aaff, size: 0.05 });
+      const pointCloud = new THREE.Points(geometry, material);
+      scene.add(pointCloud);
+
+      camera.position.z = 5;
+
+      const animate = function () {
+        requestAnimationFrame(animate);
+        pointCloud.rotation.y += 0.002;
+        renderer.render(scene, camera);
+      };
+      animate();
+    }
+  </script>
+</body>
+</html>

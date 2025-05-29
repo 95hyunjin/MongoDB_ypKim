@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>BERT 예약 응답 시스템</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <h2 class="mb-4">예약 문의 시스템 (BERT 기반)</h2>
+    <form method="POST" class="mb-4">
+      <input type="text" name="question" class="form-control" placeholder="예: 5월 1일 예약 가능한가요?" required>
+      <button class="btn btn-primary mt-2">문의하기</button>
+    </form>
+    {% if answer %}
+      <div class="alert alert-info">답변: {{ answer }}</div>
+    {% endif %}
+  </div>
+</body>
+</html>
+
+두록
+그르부인
+아이니 거제본점
+재성밀면

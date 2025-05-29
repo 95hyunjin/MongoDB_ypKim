@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chart.js Bar Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>Bar Chart Example</h2>
+  <canvas id="myChart" width="400" height="200"></canvas>
+
+  <script>
+    fetch("/chart-data")
+      .then(response => response.json())
+      .then(data => {
+        const ctx = document.getElementById("myChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: "Sample Data",
+              data: data.values,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      });
+  </script>
+</body>
+</html>
