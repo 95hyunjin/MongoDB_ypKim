@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <form method="POST" action="/login">
+    <h2>로그인</h2>
+    <input type="text" name="username" placeholder="아이디" required />
+    <input type="password" name="password" placeholder="비밀번호" required />
+    <button type="submit">로그인</button>
+    <a href="/signup">계정이 없으신가요? 가입하기</a>
+  </form>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>부품 수정</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+  <div class="container">
+    <h3>부품 정보 수정</h3>
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('update', part_id=part._id) }}">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">사진 (선택)</label><input type="file" class="form-control" name="partImage"></div>
+        <div class="col-md-6"><label class="form-label">부품코드</label><input type="text" class="form-control" name="partCode" value="{{ part.partCode }}" required></div>
+        <div class="col-md-6"><label class="form-label">부품명</label><input type="text" class="form-control" name="partName" value="{{ part.partName }}" required></div>
+        <div class="col-md-6"><label class="form-label">규격</label><input type="text" class="form-control" name="spec" value="{{ part.spec }}" required></div>
+        <div class="col-md-6"><label class="form-label">입고일</label><input type="date" class="form-control" name="inDate" value="{{ part.inDate }}"></div>
+        <div class="col-md-6"><label class="form-label">출고일</label><input type="date" class="form-control" name="outDate" value="{{ part.outDate }}"></div>
+        <div class="col-md-6"><label class="form-label">재고수량</label><input type="number" class="form-control" name="quantity" value="{{ part.quantity }}" required></div>
+        <div class="col-md-6">
+          <label class="form-label">상태</label>
+          <select class="form-select" name="status" required>
+            <option value="입고완료" {% if part.status == '입고완료' %}selected{% endif %}>입고완료</option>
+            <option value="출고완료" {% if part.status == '출고완료' %}selected{% endif %}>출고완료</option>
+            <option value="재고부족" {% if part.status == '재고부족' %}selected{% endif %}>재고부족</option>
+            <option value="미입고" {% if part.status == '미입고' %}selected{% endif %}>미입고</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
