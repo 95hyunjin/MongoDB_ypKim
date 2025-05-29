@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>프로젝트 로그 조회</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: calc(100% - 20px);
+            font-size: 16px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 30px;
+        }
+        .log {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>프로젝트 로그 조회</h1>
+    <form method="post">
+        <label for="input_date">날짜 입력 (예: 2025-03-10)</label><br>
+        <input type="text" name="input_date" id="input_date" placeholder="YYYY-MM-DD" required>
+        <input type="submit" value="조회">
+    </form>
+
+    {% if result is not none %}
+        <div class="result">
+            {% if result %}
+                <h2>조회 결과</h2>
+                {% for doc in result %}
+                    <div class="log">
+                        <strong>담당자:</strong> {{ doc['담당자'] }}<br>
+                        <strong>작업명:</strong> {{ doc['작업명'] }}<br>
+                        <strong>시작일:</strong> {{ doc['시작일'] }}<br>
+                        <strong>종료일:</strong> {{ doc['종료일'] }}<br>
+                        <strong>진행상태:</strong> {{ doc['진행상태'] }}<br>
+                        <strong>우선순위:</strong> {{ doc['우선순위'] }}<br>
+                        <strong>필요자원:</strong> {{ doc['필요자원'] }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>❗ 해당 날짜의 로그가 없습니다.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

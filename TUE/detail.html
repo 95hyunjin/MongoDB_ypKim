@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>{{ post.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5" style="max-width: 800px;">
+  <h2>{{ post.title }}</h2>
+  <p class="text-muted">by {{ post.author }} | {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+  {% if post.image %}
+    <img src="{{ url_for('static', filename='uploads/' + post.image) }}" class="img-fluid rounded mb-3">
+  {% endif %}
+  <div style="white-space: pre-wrap;">{{ post.content }}</div>
+  <hr>
+  <a href="/" class="btn btn-outline-primary">← 목록</a>
+  <a href="/delete/{{ post._id }}" class="btn btn-outline-danger float-end">삭제</a>
+</div>
+</body>
+</html>

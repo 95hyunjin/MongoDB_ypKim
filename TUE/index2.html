@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>프로젝트 로그 조회</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+        }
+
+        h1::before {
+            content: '📋';
+            margin-right: 10px;
+        }
+
+        .search-form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .form-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #2980b9;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-title::before {
+            content: '';
+            margin-right: 8px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        input[type="submit"] {
+            padding: 14px;
+            font-size: 16px;
+            background-color: #2d85e8;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #1a6ed8;
+        }
+
+        input[type="submit"]::before {
+            content: '📂 ';
+        }
+
+        table {
+            width: 100%;
+            max-width: 1200px;
+            border-collapse: collapse;
+            margin-top: 40px;
+            background-color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f4f8fb;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                padding: 20px;
+            }
+            input[type="text"] {
+                font-size: 14px;
+            }
+            input[type="submit"] {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>프로젝트 로그 조회</h1>
+
+    <form method="post" class="search-form">
+        <div class="form-title">조회 조건을 입력하거나 비워두고 전체 조회하세요</div>
+
+        <div class="form-group">
+            <label for="input_date">날짜</label>
+            <input type="text" name="input_date" id="input_date" placeholder="예: 2025-03-10">
+        </div>
+
+        <div class="form-group">
+            <label for="input_person">담당자</label>
+            <input type="text" name="input_person" id="input_person" placeholder="예: 김팀장">
+        </div>
+
+        <div class="form-group">
+            <label for="input_issue">주요이슈</label>
+            <input type="text" name="input_issue" id="input_issue" placeholder="예: 납기, 오류 등">
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="전체 또는 조건별 조회">
+        </div>
+    </form>
+
+    {% if result %}
+        <table>
+            <thead>
+                <tr>
+                    <th>일자</th>
+                    <th>담당자</th>
+                    <th>주요업무</th>
+                    <th>주요이슈</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in result %}
+                    <tr>
+                        <td>{{ doc['일자'] }}</td>
+                        <td>{{ doc['담당자'] }}</td>
+                        <td>{{ doc['주요업무'] }}</td>
+                        <td>{{ doc['주요이슈'] }}</td>
+                        <td>{{ doc['비고'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif result is not none %}
+        <p>❗ 조건에 맞는 로그가 없습니다.</p>
+    {% endif %}
+</body>
+</html>
